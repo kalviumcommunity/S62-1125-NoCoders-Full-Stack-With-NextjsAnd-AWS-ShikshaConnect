@@ -200,6 +200,60 @@ This foundation supports **clean architecture**, making future iterations (AI mo
 
 ---
 
+## Branch Naming Convention
+
+To keep branches consistent and easy to track, follow this pattern:
+
+| Type | Purpose | Example |
+|------|----------|----------|
+| feature/ | For new features | feature/login-auth |
+| fix/ | For bug fixes | fix/navbar-alignment |
+| chore/ | For maintenance tasks | chore/update-dependencies |
+| docs/ | For documentation updates | docs/update-readme |
+
+**Rules:**
+- Use lowercase letters and hyphens (`-`).
+- Keep branch names short and descriptive.
+- Always branch off from `main` (or `dev` if your team uses one).
+
+---
+
+## Code Review Checklist
+
+Each Pull Request should be verified against the following:
+
+- [ ] Code follows naming conventions and folder structure  
+- [ ] Functionality verified locally  
+- [ ] No console errors or warnings  
+- [ ] ESLint + Prettier checks pass  
+- [ ] Comments and documentation are clear  
+- [ ] No sensitive data (API keys, tokens, etc.) exposed  
+- [ ] Unit tests (if applicable) are updated or added  
+
+---
+
+## Pull Request Template
+A standardized PR template is used for all merges, located at `.github/pull_request_template.md`.
+
+It includes:
+- **Summary:** Brief overview of changes
+- **Changes Made:** Key modifications or additions
+- **Screenshots:** Visual evidence (if UI-related)
+- **Checklist:** Pre-merge verification steps
+
+---
+
+## Branch Protection Rules
+Main branch protection includes:
+- ✅ Require pull request reviews before merging  
+- ✅ Require all status checks to pass (lint/test workflows)  
+- ✅ Disallow direct pushes to `main`  
+- ✅ Require PRs to be up-to-date before merging  
+
+![Branch Protection Screenshot](./assets/branch-protection.png)
+
+---
+
 ## Final Deliverable
 
 A **fully functional PWA** for rural schools that:
