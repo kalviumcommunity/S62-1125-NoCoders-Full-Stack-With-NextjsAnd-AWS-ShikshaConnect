@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ShikshaConnect — Developer Guide
 
-## Getting Started
+This README contains technical documentation for running, maintaining, and extending the ShikshaConnect application.
+For high-level project overview, refer to the root README.
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Understanding Rendering Modes in ShikshaConnect (SSG → SSR → ISR)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ShikshaConnect uses different rendering strategies in Next.js to balance **performance**, **offline reliability**, and **real-time accuracy** depending on the page purpose.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Rendering Strategy Overview
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Rendering Mode | Page | Why It’s Used | Benefit |
+|---|---|---|---|
+| **Static Rendering (SSG)** | `/about` | Content does not change often | Fastest load time, no server overhead |
+| **Dynamic Rendering (SSR)** | `/dashboard` | Must display real-time progress and statistics | Always fresh data every time the page is loaded |
+| **Hybrid Rendering (ISR)** | `/lessons` | Lessons update occasionally | Static speed, updates automatically every 60 seconds |
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Static Rendering (SSG)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```export const revalidate = false;```
+- Page is pre-rendered at build time
+- No need to fetch updated content frequently
+- Ideal for About, Help, Landing Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Dynamic Rendering (SSR)
+``` export const dynamic = "force-dynamic"; ```
+- Page is generated on each request
+- Used where live or current data is required
+- Ideal for Dashboards, Reports, Student Progress View
 
-## Deploy on Vercel
+### 3. Incremental Static Regeneration (ISR)
+``` export const revalidate = 60;```
+- Page is served as static HTML
+- Next.js regenerates the page in the background every 60 seconds
+- Ideal for Lesson lists, Announcements, Timetables, etc.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Reflection
+- SSG enables lightning-fast load speeds for pages that rarely change.
+- SSR ensures the dashboard always displays real-time progress, which is crucial for teachers and administrators.
+- ISR offers the best balance for lesson content that updates sometimes, but not constantly.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**If ShikshaConnect scaled to 10x more users:**
+- We would continue relying heavily on SSG and ISR to minimize backend load and bandwidth usage.
+- We would only use SSR for pages where real-time information is essential (e.g., teacher dashboard updates, exam status, live attendance).
+

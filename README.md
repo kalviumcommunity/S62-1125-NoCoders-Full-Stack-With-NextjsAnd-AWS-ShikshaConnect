@@ -207,7 +207,7 @@ To keep branches consistent and easy to track, follow this pattern:
 | Type | Purpose | Example |
 |------|----------|----------|
 | feature/ | For new features | feature/login-auth |
-| fix/ | For bug fixes | fix/navbar-alignment |
+| fix/ | For bug fixes |    fix/navbar-alignment |
 | chore/ | For maintenance tasks | chore/update-dependencies |
 | docs/ | For documentation updates | docs/update-readme |
 
@@ -342,5 +342,3 @@ Verification Results:
     •	Multi-environment setup improved safety and reliability in CI/CD workflows.
 
 ⸻
-
-
