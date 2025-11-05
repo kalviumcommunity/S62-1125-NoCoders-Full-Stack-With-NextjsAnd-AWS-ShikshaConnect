@@ -263,3 +263,84 @@ A **fully functional PWA** for rural schools that:
 * Supports **multilingual content**
 * Runs smoothly on **low-end devices**
 
+---
+
+## 🌍 Environment-Aware Builds & Secrets Management
+
+This update adds **multi-environment configuration** and **secure secret handling** to ensure safe and consistent deployments across development, staging, and production.  
+It aligns with *Kalvium Concept-2: Environment-Aware Builds & Secrets Management in Production.*
+
+---
+
+### 🗂️ Environment Files
+
+| File | Purpose |
+|------|----------|
+| `.env.development` | Local development setup |
+| `.env.staging` | Pre-deployment testing setup |
+| `.env.production` | Live production setup |
+| `.env.example` | Reference file with placeholders (safe to commit) |
+
+> ✅ Only `.env.example` is tracked — all other `.env` files are ignored to protect secrets.
+
+---
+
+### ⚙️ Build Commands
+
+Defined in `package.json` using **env-cmd**:
+
+```bash
+npm run dev                # Uses .env.development
+npm run build:staging      # Uses .env.staging
+npm run build:production   # Uses .env.production
+```
+
+---
+
+
+### 🔐 Secure Secrets
+
+Real credentials (DB URLs, API keys, tokens) are stored in GitHub Secrets:
+Settings → Secrets and Variables → Actions
+
+Secrets added:
+	•	DATABASE_URL
+	•	NEXT_PUBLIC_API_URL
+
+This ensures no sensitive data is ever exposed in the repository or commits.
+
+---
+
+### 🧪 Verification
+
+Commands used for testing and validation:
+```bash
+npm run build:staging
+npm run build:production 
+```
+
+Verification Results:
+	•	Staging build points to the staging API.
+	
+    •	Production build points to the live API.
+	
+    •	.env files are ignored correctly.
+	
+    •	Secrets load securely from GitHub during build.
+
+---
+
+💭 Reflection
+	•	Used separate .env files for each environment.
+	
+    •	Ensured all sensitive info is excluded via .gitignore.
+	
+    •	Used GitHub Secrets for secure storage.
+	
+    •	Verified environment-specific builds using env-cmd.
+	
+    •	Multi-environment setup improved safety and reliability in CI/CD workflows.
+
+⸻
+
+
