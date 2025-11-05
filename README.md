@@ -207,7 +207,7 @@ To keep branches consistent and easy to track, follow this pattern:
 | Type | Purpose | Example |
 |------|----------|----------|
 | feature/ | For new features | feature/login-auth |
-| fix/ | For bug fixes | fix/navbar-alignment |
+| fix/ | For bug fixes |    fix/navbar-alignment |
 | chore/ | For maintenance tasks | chore/update-dependencies |
 | docs/ | For documentation updates | docs/update-readme |
 
@@ -262,4 +262,3 @@ A **fully functional PWA** for rural schools that:
 * Tracks **student progress**
 * Supports **multilingual content**
 * Runs smoothly on **low-end devices**
-
