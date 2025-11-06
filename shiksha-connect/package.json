@@ -8,15 +8,18 @@
     "build:staging": "env-cmd -f .env.staging next build",
     "build:production": "env-cmd -f .env.production next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "env": "^0.0.2",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@prisma/client": "^6.19.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
@@ -26,8 +29,10 @@
     "husky": "^9",
     "lint-staged": "^15",
     "next": "^16.0.1",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

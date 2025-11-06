@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// 🧠 SHIKSHA CONNECT DATABASE MODELS
+//
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  name        String
+  role        Role         @default(STUDENT)
+  courses     Course[]     @relation("UserCourses")
+  enrollments Enrollment[]
+  progress    Progress[]
+  comments    Comment[]
+  createdAt   DateTime     @default(now())
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Course {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  ownerId     String
+  owner       User         @relation("UserCourses", fields: [ownerId], references: [id])
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  createdAt   DateTime     @default(now())
+}
+
+model Lesson {
+  id         Int         @id @default(autoincrement())
+  title      String
+  content    String?
+  order      Int
+  courseId   Int
+  course     Course      @relation(fields: [courseId], references: [id])
+  videoAsset VideoAsset?
+  resources  Resource[]
+  comments   Comment[]
+  progress   Progress[]
+  createdAt  DateTime    @default(now())
+
+  @@index([courseId, order])
+}
+
+model VideoAsset {
+  id       Int    @id @default(autoincrement())
+  lessonId Int    @unique
+  url      String
+  duration Int?
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+}
+
+model Resource {
+  id       Int    @id @default(autoincrement())
+  lessonId Int
+  filename String
+  url      String
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+}
+
+model Enrollment {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  courseId  Int
+  role      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model Progress {
+  id       Int       @id @default(autoincrement())
+  userId   String
+  lessonId Int
+  percent  Float     @default(0.0)
+  lastSeen DateTime?
+  user     User      @relation(fields: [userId], references: [id])
+  lesson   Lesson    @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  lessonId  Int
+  userId    String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
