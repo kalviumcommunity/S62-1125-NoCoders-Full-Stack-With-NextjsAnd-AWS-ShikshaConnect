@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ async function main() {
     create: {
       email: 'asha.teacher@shiksha.test',
       name: 'Asha Teacher',
-      role: Role.TEACHER,
+      role: 'TEACHER',
     },
   });
 
@@ -25,7 +25,7 @@ async function main() {
     create: {
       email: 'ram.student@shiksha.test',
       name: 'Ram Student',
-      role: Role.STUDENT,
+      role: 'STUDENT',
     },
   });
 

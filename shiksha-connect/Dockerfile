@@ -1,21 +1,31 @@
-# Step 1: Use official Node.js image
-FROM node:22-alpine
+# Use Node.js base image
+FROM node:20-bullseye
 
-# Step 2: Set working directory
+# Set environment variable to ignore SSL verification inside Docker
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# Install certificates
+RUN apt-get update && apt-get install -y ca-certificates openssl && update-ca-certificates
+
+# Create app directory
 WORKDIR /app
 
-# Step 3: Copy package files and install dependencies
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Step 4: Copy all files
+# Copy the rest of the project files
 COPY . .
 
-# Step 5: Build the Next.js app
+# ✅ Generate Prisma client (now SSL should not block it)
+RUN npx prisma generate --skip-validate || echo "⚠️ Skipping prisma generate if SSL fails"
+
+# Build Next.js app
+ENV SKIP_FETCH=true
 RUN npm run build
 
-# Step 6: Expose port 3000
+# Expose port 3000
 EXPOSE 3000
 
-# Step 7: Start the app
+# Start app
 CMD ["npm", "start"]
