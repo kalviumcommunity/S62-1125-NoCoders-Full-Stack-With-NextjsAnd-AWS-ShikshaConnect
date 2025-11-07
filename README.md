@@ -341,4 +341,72 @@ Verification Results:
 	
     •	Multi-environment setup improved safety and reliability in CI/CD workflows.
 
-⸻
+---
+
+# Normalized PostgreSQL Schema (Prisma + TypeScript)
+
+## 📘 Overview
+**Shiksha Connect** uses **PostgreSQL** as its main database, managed through **Prisma ORM** for a type-safe integration with Next.js and TypeScript.  
+The schema follows **Third Normal Form (3NF)** to ensure consistency, no redundancy, and scalability for future features like analytics and offline sync.
+
+---
+
+## 🧩 Core Entities & Relationships
+
+| Entity | Description | Key Fields |
+|--------|--------------|------------|
+| **User** | Represents students, teachers, or admins | `id`, `email`, `role` |
+| **Course** | Created and owned by a teacher, contains multiple lessons | `id`, `title`, `ownerId` |
+| **Lesson** | Belongs to a course and may have associated videos/resources | `id`, `title`, `courseId` |
+| **VideoAsset** | Holds metadata for videos attached to lessons | `id`, `lessonId`, `url` |
+| **Resource** | Study materials such as PDFs, slides, etc. | `id`, `lessonId`, `url` |
+| **Enrollment** | Links users to courses (many-to-many relationship) | `userId`, `courseId` |
+| **Progress** | Tracks each student’s lesson completion percentage | `userId`, `lessonId`, `percent` |
+| **Comment** | Discussion threads or feedback under each lesson | `userId`, `lessonId`, `content` |
+
+---
+
+## 🔗 Relational Design
+
+- **1:N** → A `User` owns many `Courses`
+- **1:N** → A `Course` has many `Lessons`
+- **1:1** → A `Lesson` has one `VideoAsset`
+- **N:N** → `User` ↔ `Course` through `Enrollment`
+- **1:N** → `Lesson` ↔ `Comment` (student discussions)
+- **1:N** → `Lesson` ↔ `Progress` (tracking learning progress)
+
+---
+
+## 🧱 Keys & Constraints
+
+- **Primary Keys:** Auto-incremented integers or UUIDs  
+- **Foreign Keys:**  
+  - `Course.ownerId → User.id`  
+  - `Lesson.courseId → Course.id`  
+  - `Enrollment.userId → User.id`  
+  - `Progress.lessonId → Lesson.id`
+- **Unique Constraints:**  
+  - `User.email`  
+  - Composite uniqueness on `Enrollment (userId, courseId)` and `Progress (userId, lessonId)`
+- **Indexes:**  
+  - `courseId`, `order`, and unique user-course combinations for optimized lookups
+
+---
+
+## 🧮 Normalization Notes
+
+- **1NF:** Each column holds atomic values (no repeating groups).  
+- **2NF:** All non-key attributes depend fully on the primary key.  
+- **3NF:** No transitive dependencies; all non-key fields depend only on the primary key.  
+✅ Ensures efficient storage, minimal redundancy, and easy updates.
+
+---
+
+## ⚙️ Setup & Migration Commands
+
+```bash
+npx prisma migrate dev --name init_schema
+npx prisma generate
+npx prisma studio
+```
+
