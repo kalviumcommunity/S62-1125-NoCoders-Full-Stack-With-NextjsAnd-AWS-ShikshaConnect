@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --dotenv .env.development",
+    "build": "env-cmd -f .env.production next build",
     "build:staging": "env-cmd -f .env.staging next build",
     "build:production": "env-cmd -f .env.production next build",
     "start": "next start",
