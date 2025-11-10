@@ -1,5 +1,6 @@
 // Revalidate every 60 seconds — this makes it a hybrid (ISR) page
-export const revalidate = 60;
+// export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function NewsPage() {
   // Use a stable, dummy API instead of Coindesk
