@@ -58,3 +58,81 @@ This setup helps maintain collaboration, prevent code conflicts, and ensure high
 - Errors are caught early
 - Formatting happens automatically
 - Every commit is cleaner
+
+---
+
+
+## 📘 Database Schema Design (PostgreSQL + Prisma)
+
+### 🧭 Overview
+
+This project demonstrates relational database design using **PostgreSQL** and **Prisma ORM**.
+It models a simple system where users can create projects, and each project can have multiple tasks.
+
+---
+
+### ⚙️ Tools Used
+
+* **PostgreSQL** (Database)
+* **Prisma ORM** (Schema modeling & migrations)
+* **pgAdmin 4** (Database UI)
+* **Prisma Studio** (Data visualization)
+
+---
+
+### 🧩 Entities & Relationships
+
+**Core entities:**
+
+* **User** → represents a registered user
+* **Project** → created by a user
+* **Task** → belongs to a project
+
+**Relationships:**
+
+* One **User** can have many **Projects**
+* One **Project** can have many **Tasks**
+
+---
+
+### 🧱 Database Setup
+
+1. Created database `beastbuddy_db` in **pgAdmin 4**.
+2. Added connection details in `.env`:
+
+   ```
+   DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/beastbuddy_db?schema=public"
+   ```
+3. Applied migrations:
+
+   ```bash
+   npx prisma migrate dev --name init_schema
+   ```
+
+---
+
+### 🌱 Data Seeding
+
+A sample seed file (`prisma/seed.ts`) inserts a test user with one project and two tasks.
+Run:
+
+```bash
+npx prisma db seed
+```
+
+---
+
+### 🧾 Documentation Notes
+
+* **Normalization:** Follows 3NF to avoid redundancy.
+* **Keys:** Auto-incrementing primary keys; foreign keys link User → Project → Task.
+* **Scalability:** Easy to extend for comments, teams, or statuses.
+* **Verification:** Viewed successfully via Prisma Studio and pgAdmin.
+
+---
+
+### ✅ Outcome
+
+* Successfully connected Prisma to PostgreSQL
+* Created tables and seeded test data
+* Verified relationships and constraints visually in **Prisma Studio**
