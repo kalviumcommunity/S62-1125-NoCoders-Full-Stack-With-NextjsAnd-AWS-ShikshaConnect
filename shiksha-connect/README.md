@@ -136,3 +136,85 @@ npx prisma db seed
 * Successfully connected Prisma to PostgreSQL
 * Created tables and seeded test data
 * Verified relationships and constraints visually in **Prisma Studio**
+
+---
+
+## 📦 Cloud Deployment Overview (Docker → CI/CD → AWS/Azure)
+
+### 1️⃣ Dockerizing the Project
+I containerized both frontend and backend using individual Dockerfiles and combined them with Docker Compose.
+
+**Example Dockerfile**
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+CMD ["npm", "start"]
+```
+
+**docker-compose.yml**
+```yaml
+services:
+  backend:
+    build: ./backend
+    ports: ["5000:5000"]
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+```
+
+---
+
+### 2️⃣ CI/CD with GitHub Actions
+A GitHub Actions workflow automates:
+- Building Docker images  
+- Logging into Docker Hub / ACR  
+- Pushing images  
+- Deploying to AWS/Azure  
+
+**Sample Workflow**
+```yaml
+name: Deploy
+
+on: { push: { branches: ["main"] } }
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - run: docker build -t app-backend ./backend
+      - run: docker push app-backend
+```
+
+---
+
+### 3️⃣ Deployment (AWS / Azure)
+**AWS:**  
+- EC2 instance running Docker  
+- Pulled images from registry  
+- Ran app using Docker Compose  
+
+**Azure:**  
+- Docker images pushed to Azure Container Registry  
+- Azure App Service pulled and ran the container  
+
+---
+
+### 4️⃣ Secrets & Environment Variables
+- Local: `.env`  
+- CI/CD: GitHub Secrets  
+- Cloud: EC2 variables / App Service settings  
+
+---
+
+### 5️⃣ Reflection
+**Learned:** Docker basics, CI/CD flow, cloud hosting, secrets management  
+**Challenges:** Docker build errors, CORS issues, env configs  
+**Next improvements:** Monitoring, auto-deploy to ECS/AppService, IaC support  
