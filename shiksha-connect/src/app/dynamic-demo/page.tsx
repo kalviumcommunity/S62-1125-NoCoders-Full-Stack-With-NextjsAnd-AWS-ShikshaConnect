@@ -1,6 +1,5 @@
 // app/dynamic-demo/page.tsx
 export const dynamic = 'force-dynamic'; // disable all caching
-
 export default async function DynamicDemoPage() {
   const data = await fetch('https://dummyjson.com/quotes/random', {
     cache: 'no-store',
