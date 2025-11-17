@@ -1,6 +1,6 @@
 // app/static-demo/page.tsx
 export const revalidate = false; // Completely static
-
+export const dynamic = "force-dynamic";
 export default async function StaticDemoPage() {
   const data = await fetch('https://dummyjson.com/products?limit=5', {
     cache: 'force-cache',

@@ -1,5 +1,6 @@
 // app/hybrid-demo/page.tsx
 export const revalidate = 60; // Regenerate every 60 seconds
+export const dynamic = "force-dynamic";
 
 export default async function HybridDemoPage() {
   const data = await fetch('https://dummyjson.com/posts', {
