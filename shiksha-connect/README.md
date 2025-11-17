@@ -58,3 +58,22 @@ This setup helps maintain collaboration, prevent code conflicts, and ensure high
 - Errors are caught early
 - Formatting happens automatically
 - Every commit is cleaner
+
+---
+
+## Environment Setup
+
+This project uses two environment files:
+
+### `.env.local`
+Contains real credentials (database URL, JWT secrets, backend keys).  
+**Never commit this file.**
+
+### `.env.example`
+A safe template listing all required environment variables with placeholder values.  
+Use it to replicate the environment:
+
+Common issues avoided:
+- Exposing secrets accidentally via missing `NEXT_PUBLIC_` prefix  
+- Using server-only secrets inside client components  
+- Forgetting the difference between runtime vs build-time variables  
