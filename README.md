@@ -410,3 +410,91 @@ npx prisma generate
 npx prisma studio
 ```
 
+## ☁️ Understanding Cloud Deployments: Docker → CI/CD → AWS
+
+### 🐳 1. Containerizing the Project
+
+I used **Docker** to package my Next.js (TypeScript) app so it runs the same everywhere.  
+Docker allows me to bundle all dependencies, environment files, and build outputs into one container.
+
+**Dockerfile:**
+```Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+
+Commands to build & run:
+
+docker build -t shikshaconnect .
+docker run -p 3000:3000 shikshaconnect
+
+
+2. Automating Deployment with CI/CD
+
+I set up GitHub Actions to automate the whole process.
+Whenever I push to main, it builds the app, creates a Docker image, pushes it to Docker Hub, and deploys it to AWS EC2 automatically.
+
+GitHub Actions workflow (simplified):
+
+name: Deploy App
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci && npm run build
+      - run: docker build -t ${{ secrets.DOCKER_USERNAME }}/shikshaconnect .
+      - run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/shikshaconnect
+      - uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/shikshaconnect
+            docker stop shikshaconnect || true
+            docker rm shikshaconnect || true
+            docker run -d -p 80:3000 ${{ secrets.DOCKER_USERNAME }}/shikshaconnect
+
+ 3. Deploying on AWS EC2
+
+I hosted the container on an AWS EC2 Ubuntu instance:
+
+ssh -i key.pem ubuntu@<EC2_IP>
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl start docker
+
+The GitHub Actions workflow connects via SSH and redeploys automatically with every code push.
+
+## 🧠 Advanced Data Fetching Demo (Next.js App Router)
+
+### Pages Implemented
+| Page Route | Rendering Type | Configuration | Description |
+|-------------|----------------|----------------|--------------|
+| `/static-demo` | Static (SSG) | `export const revalidate = false` | Pre-rendered once at build time for fast load speed |
+| `/dynamic-demo` | Dynamic (SSR) | `export const dynamic = 'force-dynamic'` | Fetched on every request for real-time data |
+| `/hybrid-demo` | Hybrid (ISR) | `export const revalidate = 60` | Cached static page that updates every 60s |
+
+### Reflection
+Each rendering mode balances **speed**, **freshness**, and **server cost** differently.  
+If this app had 10x more users, I’d rely more on static and ISR pages for scalability, using SSR only when data must be live per request (like personalized dashboards).
+
+  • http://localhost:3000/static-demo
+
+	•	http://localhost:3000/dynamic-demo
+  
+	•	http://localhost:3000/hybrid-demo
