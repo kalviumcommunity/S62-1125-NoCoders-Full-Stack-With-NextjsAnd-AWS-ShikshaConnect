@@ -235,3 +235,23 @@ jobs:
 **Learned:** Docker basics, CI/CD flow, cloud hosting, secrets management  
 **Challenges:** Docker build errors, CORS issues, env configs  
 **Next improvements:** Monitoring, auto-deploy to ECS/AppService, IaC support  
+
+---
+
+## Docker Setup
+
+### `Dockerfile`
+Builds the Next.js app (install → build → start).  
+Runs on **port 3000**.
+
+### `docker-compose.yml`
+Starts three services:
+- **app** (Next.js)
+- **db** (Postgres with volume)
+- **redis** (Redis cache)
+
+Run everything:
+
+```bash
+docker-compose up --build
+```
