@@ -1,47 +1,45 @@
 version: '3.9'
-
 services:
   app:
     build: .
-    container_name: shiksha_app
+    container_name: nextjs_app
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/shiksha
+      - DATABASE_URL=postgres://postgres:password@db:5432/mydb
       - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
     depends_on:
       - db
       - redis
     networks:
-      - shiksha-net
+      - localnet
 
   db:
     image: postgres:15-alpine
-    container_name: shiksha_db
+    container_name: postgres_db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: shiksha
+      POSTGRES_DB: mydb
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - shiksha-net
+      - localnet
 
   redis:
     image: redis:7-alpine
-    container_name: shiksha_redis
+    container_name: redis_cache
     ports:
       - "6379:6379"
     networks:
-      - shiksha-net
+      - localnet
 
 networks:
-  shiksha-net:
+  localnet:
     driver: bridge
 
 volumes:
-  pgdata:
+  db_data:
