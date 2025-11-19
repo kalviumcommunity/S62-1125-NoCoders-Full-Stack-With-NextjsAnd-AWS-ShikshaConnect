@@ -255,3 +255,14 @@ Run everything:
 ```bash
 docker-compose up --build
 ```
+
+---
+
+### Prisma Migrations & Seeding
+- Run your first migration using: `npx prisma migrate dev --name init_schema`.  
+- Whenever you update models, create a new migration: `npx prisma migrate dev --name <change_name>`.  
+- To reset the database and re-apply all migrations, use: `npx prisma migrate reset` (dev only).  
+- Seed your database using: `npx prisma db seed` after configuring `prisma/seed.ts`.  
+- Use `npx prisma studio` to visually verify tables and seed data.  
+- Always review generated SQL in `prisma/migrations/` before applying changes.  
+- Document migration steps and ensure seeds are idempotent to prevent duplicate entries.
