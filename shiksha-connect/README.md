@@ -266,3 +266,23 @@ docker-compose up --build
 - Use `npx prisma studio` to visually verify tables and seed data.  
 - Always review generated SQL in `prisma/migrations/` before applying changes.  
 - Document migration steps and ensure seeds are idempotent to prevent duplicate entries.
+
+---
+
+# Prisma Transactions & Optimization
+
+This project demonstrates Prisma transactions, rollback handling, query optimization, and indexing.
+
+## Transactions
+User + Order creation is wrapped in a `$transaction` to ensure atomicity. Invalid data triggers rollback automatically.
+
+## Optimized Queries
+Uses `select` to avoid over-fetching, `createMany` for batching, and pagination with `skip` + `take`.
+
+## Indexes
+Indexes added on `userId` and `status` fields to improve query speed (`npx prisma migrate dev` applied).
+
+## Monitoring
+Enabled Prisma query logs using `DEBUG="prisma:query"`, comparing performance before and after indexes.
+
+---

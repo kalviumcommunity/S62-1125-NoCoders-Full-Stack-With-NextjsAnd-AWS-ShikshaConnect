@@ -21,3 +21,14 @@ model Project {
   userId    Int
   user      User      @relation(fields: [userId], references: [id])
 }
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  total     Int
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
