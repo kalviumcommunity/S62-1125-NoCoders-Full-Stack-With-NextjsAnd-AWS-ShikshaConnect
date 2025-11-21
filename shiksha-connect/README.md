@@ -266,3 +266,39 @@ docker-compose up --build
 - Use `npx prisma studio` to visually verify tables and seed data.  
 - Always review generated SQL in `prisma/migrations/` before applying changes.  
 - Document migration steps and ensure seeds are idempotent to prevent duplicate entries.
+
+---
+
+## RESTful API With Next.js App Router
+
+### 1. File-Based Routing
+Every folder inside `app/api/` becomes an API endpoint:
+
+app/api/users/route.ts → /api/users
+app/api/users/[id]/route.ts → /api/users/:id
+
+markdown
+Copy code
+
+### 2. RESTful Endpoints
+- `GET /api/users` — list users (with pagination)
+- `POST /api/users` — create user
+- `GET /api/users/:id` — get user by ID
+- `PUT /api/users/:id` — update user
+- `DELETE /api/users/:id` — remove user
+
+### 3. Pagination
+`GET /api/users?page=1&limit=10` returns sliced results.
+
+### 4. Error Handling
+Meaningful status codes:
+- 200 OK  
+- 201 Created  
+- 400 Bad Request  
+- 404 Not Found  
+- 500 Server Error  
+
+### 5. Testing
+Use Postman
+
+---
