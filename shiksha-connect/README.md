@@ -269,20 +269,48 @@ docker-compose up --build
 
 ---
 
-# Prisma Transactions & Optimization
+## Prisma Transactions & Optimization
 
 This project demonstrates Prisma transactions, rollback handling, query optimization, and indexing.
 
-## Transactions
+### Transactions
 User + Order creation is wrapped in a `$transaction` to ensure atomicity. Invalid data triggers rollback automatically.
 
-## Optimized Queries
+### Optimized Queries
 Uses `select` to avoid over-fetching, `createMany` for batching, and pagination with `skip` + `take`.
 
-## Indexes
+### Indexes
 Indexes added on `userId` and `status` fields to improve query speed (`npx prisma migrate dev` applied).
 
-## Monitoring
+### Monitoring
 Enabled Prisma query logs using `DEBUG="prisma:query"`, comparing performance before and after indexes.
+
+---
+
+## RESTful API With Next.js App Router
+
+### 1. File-Based Routing
+Every folder inside `app/api/` becomes an API endpoint:
+
+app/api/users/route.ts → /api/users
+app/api/users/[id]/route.ts → /api/users/:id
+
+### 2. RESTful Endpoints
+- `GET /api/users` — list users (with pagination)
+- `POST /api/users` — create user
+- `GET /api/users/:id` — get user by ID
+- `PUT /api/users/:id` — update user
+- `DELETE /api/users/:id` — remove user
+
+### 3. Pagination
+`GET /api/users?page=1&limit=10` returns sliced results.
+
+### 4. Error Handling
+Meaningful status codes:
+- 200 OK  
+- 201 Created  
+- 400 Bad Request  
+- 404 Not Found  
+- 500 Server Error
 
 ---
