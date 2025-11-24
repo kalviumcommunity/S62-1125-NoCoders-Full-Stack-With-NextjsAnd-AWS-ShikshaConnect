@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
-import prisma from "@/libs/prisma";
+import { prisma } from "@/libs/prisma";
+import { sendSuccess, sendError } from "@/libs/responseHandler";
+import { ERROR_CODES } from "@/libs/errorCodes";
 
 export async function POST() {
   try {
     await prisma.user.createMany({
       data: [
-        { name: "Alice" },
-        { name: "Bob" },
-        { name: "Charlie" },
+        { name: "Alice", email: "alice@example.com" },
+        { name: "Bob", email: "bob@example.com" },
+        { name: "Charlie", email: "charlie@example.com" },
       ],
     });
 
-    return NextResponse.json({ message: "Batch insert successful" });
+    return sendSuccess(null, "Batch insert successful", 201);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Batch insert failed" },
-      { status: 500 }
-    );
+    console.error("Batch insert failed:", error);
+    return sendError("Batch insert failed", ERROR_CODES.BATCH_INSERT_FAILED, 500, error);
   }
 }
 
@@ -31,19 +31,22 @@ export async function GET(req: Request) {
     const users = await prisma.user.findMany({
       skip,
       take: limit,
-      orderBy: { createdAt: "desc" },
-      select: { id: true, name: true },
+      orderBy: { id: "desc" },
+      select: { id: true, name: true, email: true },
     });
 
-    return NextResponse.json({
-      page,
-      limit,
+    const paginationData = {
       users,
-    });
+      pagination: {
+        page,
+        limit,
+        total: users.length,
+      },
+    };
+
+    return sendSuccess(paginationData, "Users fetched successfully");
   } catch (error) {
-    return NextResponse.json(
-      { error: "Pagination fetch failed" },
-      { status: 500 }
-    );
+    console.error("Pagination fetch failed:", error);
+    return sendError("Pagination fetch failed", ERROR_CODES.PAGINATION_FAILED, 500, error);
   }
 }
