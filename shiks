@@ -1,0 +1,60 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/libs/prisma";
+import { sendSuccess, sendError } from "@/libs/responseHandler";
+import { ERROR_CODES } from "@/libs/errorCodes";
+import { testSchema } from "@/libs/schemas/userSchema";
+import { handleZodError } from "@/libs/validationHandler";
+
+export async function POST() {
+  try {
+    await prisma.user.createMany({
+      data: [
+        { name: "Alice", email: "alice@example.com" },
+        { name: "Bob", email: "bob@example.com" },
+        { name: "Charlie", email: "charlie@example.com" },
+      ],
+    });
+
+    return sendSuccess(null, "Batch insert successful", 201);
+  } catch (error) {
+    console.error("Batch insert failed:", error);
+    return sendError("Batch insert failed", ERROR_CODES.BATCH_INSERT_FAILED, 500, error);
+  }
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 5;
+
+  // Validate pagination parameters using Zod
+  try {
+    const validatedPagination = {
+      page: Math.max(1, Math.min(page, 100)), // Limit page between 1-100
+      limit: Math.max(1, Math.min(limit, 50)) // Limit limit between 1-50
+    };
+
+    const skip = (validatedPagination.page - 1) * validatedPagination.limit;
+
+    const users = await prisma.user.findMany({
+      skip,
+      take: validatedPagination.limit,
+      orderBy: { id: "desc" },
+      select: { id: true, name: true, email: true },
+    });
+
+    const paginationData = {
+      users,
+      pagination: {
+        page: validatedPagination.page,
+        limit: validatedPagination.limit,
+        total: users.length,
+      },
+    };
+
+    return sendSuccess(paginationData, "Users fetched successfully");
+  } catch (error) {
+    console.error("Pagination fetch failed:", error);
+    return sendError("Pagination fetch failed", ERROR_CODES.PAGINATION_FAILED, 500, error);
+  }
+}
