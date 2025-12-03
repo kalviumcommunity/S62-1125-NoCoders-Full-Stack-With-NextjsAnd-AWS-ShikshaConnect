@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 
-export default function SignupPage() {
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleSignup = async (e: any) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
     setLoading(true);
 
-    console.log("Signing up...");
+    console.log("Logging in...");
     setTimeout(() => setLoading(false), 1200);
   };
 
@@ -18,23 +18,13 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-6 py-12">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-8 border border-gray-200">
         <h1 className="text-3xl font-bold text-gray-900 text-center">
-          Create Your Account
+          Welcome Back
         </h1>
         <p className="text-gray-600 text-center mt-2 text-sm">
-          Join ShikshaConnect and start learning offline.
+          Login to continue learning offline.
         </p>
 
-        <form onSubmit={handleSignup} className="mt-8 space-y-5">
-          <div className="flex items-center bg-gray-100 px-4 py-3 rounded-xl">
-            <User className="w-5 h-5 text-gray-600 mr-3" />
-            <input
-              type="text"
-              placeholder="Full Name"
-              required
-              className="bg-transparent flex-1 outline-none text-gray-800"
-            />
-          </div>
-
+        <form onSubmit={handleLogin} className="mt-8 space-y-5">
           <div className="flex items-center bg-gray-100 px-4 py-3 rounded-xl">
             <Mail className="w-5 h-5 text-gray-600 mr-3" />
             <input
@@ -60,14 +50,14 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating Account..." : "Sign Up"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p className="text-center text-gray-600 mt-6 text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline font-medium">
-            Login
+          Don't have an account?{" "}
+          <a href="/signup" className="text-blue-600 hover:underline font-medium">
+            Sign Up
           </a>
         </p>
       </div>

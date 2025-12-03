@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { prisma } from "../../../../libs/prisma";
+import { prisma } from "@/libs/prisma";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { name, email, password } = body;
+    const { name, email, password } = await req.json();
 
-    // Validate required fields
     if (!name || !email || !password) {
       return NextResponse.json(
         { success: false, message: "Name, email, and password are required" },
@@ -15,11 +13,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ 
-      where: { email } 
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
     });
-    
+
     if (existingUser) {
       return NextResponse.json(
         { success: false, message: "User already exists" },
@@ -27,15 +26,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash the password with 10 salt rounds
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
     const newUser = await prisma.user.create({
-      data: { 
-        name, 
-        email, 
-        password: hashedPassword 
+      data: {
+        name,
+        email: normalizedEmail,
+        password: hashedPassword
       },
       select: {
         id: true,
@@ -45,15 +42,24 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Signup successful", 
-      user: newUser 
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Signup successful",
+        user: newUser
+      },
+      { status: 201 }
+    );
+
   } catch (error) {
     console.error("Signup error:", error);
+
     return NextResponse.json(
-      { success: false, message: "Signup failed", error: error instanceof Error ? error.message : "Unknown error" },
+      {
+        success: false,
+        message: "Signup failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
