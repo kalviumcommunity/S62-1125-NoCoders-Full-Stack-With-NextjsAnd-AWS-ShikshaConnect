@@ -1,76 +1,29 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { prisma } from "../../../libs/prisma";
+import { prisma } from "@/libs/prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
-
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    // Get the authorization header
-    const authHeader = req.headers.get("authorization");
-    
-    // Check if token is provided
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { success: false, message: "Token missing or invalid format" },
-        { status: 401 }
-      );
-    }
-
-    // Extract the token
-    const token = authHeader.split(" ")[1];
-
-    // Verify the token
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string; name: string };
-
-    // Get user details from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+    const users = await prisma.user.findMany({
       select: {
         id: true,
         name: true,
         email: true,
-        createdAt: true
-      }
+        role: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      message: "Protected data accessed successfully", 
-      user,
-      tokenInfo: {
-        id: decoded.id,
-        email: decoded.email,
-        name: decoded.name
-      }
+    return NextResponse.json({
+      success: true,
+      count: users.length,
+      users,
     });
   } catch (error) {
-    console.error("Protected route error:", error);
-    
-    if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json(
-        { success: false, message: "Invalid token" },
-        { status: 403 }
-      );
-    }
-    
-    if (error instanceof jwt.TokenExpiredError) {
-      return NextResponse.json(
-        { success: false, message: "Token expired" },
-        { status: 401 }
-      );
-    }
-
+    console.error("GET /users error:", error);
     return NextResponse.json(
-      { success: false, message: "Authentication failed", error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 403 }
+      { success: false, message: "Failed to fetch users" },
+      { status: 500 }
     );
   }
 }
