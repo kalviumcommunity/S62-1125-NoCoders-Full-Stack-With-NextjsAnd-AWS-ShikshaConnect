@@ -2,16 +2,58 @@
 
 import { useState } from "react";
 import { Mail, Lock, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSignup = async (e: any) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
-    console.log("Signing up...");
-    setTimeout(() => setLoading(false), 1200);
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Signup failed");
+      }
+
+      // Automatically log in after signup and redirect to dashboard
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (loginResponse.ok && loginData.success) {
+        router.push("/dashboard/student");
+      } else {
+        // If auto-login fails, redirect to login page
+        router.push("/login");
+      }
+    } catch (err: any) {
+      setError(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,12 +66,20 @@ export default function SignupPage() {
           Join ShikshaConnect and start learning offline.
         </p>
 
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSignup} className="mt-8 space-y-5">
           <div className="flex items-center bg-gray-100 px-4 py-3 rounded-xl">
             <User className="w-5 h-5 text-gray-600 mr-3" />
             <input
               type="text"
               placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
               className="bg-transparent flex-1 outline-none text-gray-800"
             />
@@ -40,6 +90,8 @@ export default function SignupPage() {
             <input
               type="email"
               placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="bg-transparent flex-1 outline-none text-gray-800"
             />
@@ -50,6 +102,8 @@ export default function SignupPage() {
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="bg-transparent flex-1 outline-none text-gray-800"
             />

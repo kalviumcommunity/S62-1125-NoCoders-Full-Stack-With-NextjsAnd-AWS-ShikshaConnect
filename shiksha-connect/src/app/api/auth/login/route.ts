@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
+      { id: user.id, email: user.email, name: user.name, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -49,6 +49,7 @@ export async function POST(req: Request) {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });
@@ -56,8 +57,13 @@ export async function POST(req: Request) {
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",               // REQUIRED
       path: "/",
       maxAge: 60 * 60,
+      domain:
+        process.env.NODE_ENV === "production"
+          ? ".vercel.app"
+          : undefined,              // OPTIONAL for local, REQUIRED for production
     });
 
     return response;

@@ -1,32 +1,68 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
 
 export default function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
-
   const [open, setOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [role, setRole] = useState<"student" | "teacher" | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role") as "student" | "teacher" | null;
-
-    setLoggedIn(!!token);
-    setRole(storedRole);
+    checkAuthStatus();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setLoggedIn(false);
-    setRole(null);
-    router.push("/login");
+  const checkAuthStatus = async () => {
+    try {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch("/api/me", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    // Clear the token cookie
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+    
+    // Force a page reload to clear any cached state
+    window.location.href = "/";
   };
 
   const navItem = (label: string, href: string) => (
@@ -40,6 +76,16 @@ export default function Navbar() {
       {label}
     </Link>
   );
+
+  if (loading) {
+    return (
+      <nav className="sticky top-0 z-30 bg-white/70 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="animate-pulse bg-gray-200 rounded h-8 w-32"></div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="sticky top-0 z-30 bg-white/70 backdrop-blur-md border-b border-gray-200">
@@ -59,25 +105,25 @@ export default function Navbar() {
           {navItem("Home", "/")}
           {navItem("Courses", "/courses")}
 
-          {/* STUDENT MENU */}
-          {loggedIn && role === "student" && navItem("My Courses", "/my-courses")}
-
-          {/* TEACHER MENU */}
-          {loggedIn && role === "teacher" && navItem("Create Course", "/teacher/create")}
-
-          {/* Common for both roles */}
-          {loggedIn && navItem("Dashboard", "/dashboard")}
+          {/* AUTHENTICATED USER MENU */}
+          {user && navItem("Dashboard", "/dashboard")}
 
           {/* AUTH BUTTONS */}
-          {!loggedIn ? (
+          {!user ? (
             navItem("Login", "/login")
           ) : (
-            <button
-              onClick={handleLogout}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100 transition"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">
+                Welcome, {user.name}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100 transition"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           )}
         </div>
 
@@ -98,23 +144,23 @@ export default function Navbar() {
             {navItem("Home", "/")}
             {navItem("Courses", "/courses")}
 
-            {/* Student */}
-            {loggedIn && role === "student" && navItem("My Courses", "/my-courses")}
+            {user && navItem("Dashboard", "/dashboard")}
 
-            {/* Teacher */}
-            {loggedIn && role === "teacher" && navItem("Create Course", "/teacher/create")}
-
-            {loggedIn && navItem("Dashboard", "/dashboard")}
-
-            {!loggedIn ? (
+            {!user ? (
               navItem("Login", "/login")
             ) : (
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100"
-              >
-                Logout
-              </button>
+              <div className="pt-2 border-t">
+                <p className="text-sm text-gray-600 mb-2">
+                  Welcome, {user.name}
+                </p>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
             )}
           </div>
         </div>

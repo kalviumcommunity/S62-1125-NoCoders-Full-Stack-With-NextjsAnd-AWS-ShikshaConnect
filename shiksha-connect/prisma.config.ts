@@ -1,7 +1,6 @@
 export default {
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL!,
-    },
+  datasource: {
+    provider: 'postgresql',
+    url: process.env.DATABASE_URL,
   },
-};
+}
