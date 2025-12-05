@@ -7,28 +7,103 @@ generator client {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String    @unique
-  password  String    // For authentication
-  createdAt DateTime  @default(now())
-  projects  Project[]
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  projects Project[]
+  orders   Order[]
+  progress StudentProgress[]
 }
 
 model Project {
-  id        Int       @id @default(autoincrement())
-  name      String
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id])
+  id     Int    @id @default(autoincrement())
+  name   String
+  userId Int
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Order {
   id        Int      @id @default(autoincrement())
   userId    Int
   total     Int
-  status    String    @default("pending")
-  createdAt DateTime  @default(now())
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([status])
+}
+
+model Course {
+  id               String  @id @default(uuid())
+  title            String
+  description      String
+  category         String
+  level            String
+  duration         String
+  teacherName      String
+  teacherBio       String
+  offlineAvailable Boolean @default(true)
+
+  modules   Module[]
+  createdAt DateTime @default(now())
+}
+
+model Module {
+  id       String @id @default(uuid())
+  title    String
+  duration String
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
+  lessons Lesson[]
+}
+
+model Lesson {
+  id           String  @id @default(uuid())
+  title        String
+  duration     String
+  videoUrl     String?
+  notes        String?
+  transcript   String?
+  summary      String?
+  downloadable Boolean @default(true)
+
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id])
+
+  resources LessonResource[]
+  progress  StudentProgress[]
+
+  createdAt DateTime @default(now())
+}
+
+model LessonResource {
+  id    String @id @default(uuid())
+  type  String
+  title String
+  url   String
+  size  String?
+
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+}
+
+model StudentProgress {
+  id           String   @id @default(uuid())
+  userId       Int
+  lessonId     String
+  completed    Boolean  @default(false)
+  lastAccessed DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
 }
